@@ -11,9 +11,9 @@ tess_list  [0, 1, 2, ...]
     The binary format works by having 4 lists of 4 byte floats. The lists are seperated by two FF bytes:
 
 /x??/x??/x??/x??... // this is an exaple of a float represented by 4 bytes. This would continue for as many bytes as needed for the x_list.
-/xFF/xFF // this tells the program that is reading it that the x_list is done
+\xFF\xFF\xFF\xFF // this tells the program that is reading it that the x_list is done
 /x??/x??/x??/x??... // this is the y_list
-/xFF/xFF // this tells the program that is reading it that the y_list is done
+\xFF\xFF\xFF\xFF // this tells the program that is reading it that the y_list is done
 /x??/x??/x??/x?? // this is the list of float values for the z_list
-/xFF/xFF this tells the program that is reading it that the z_list is done
+\xFF\xFF\xFF\xFF this tells the program that is reading it that the z_list is done
 /x??/x??/x??/x?? // this is a list of 4 byte ints for the tess_list.
