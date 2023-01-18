@@ -1,5 +1,7 @@
 import struct
 import os
+import re
+import gc
 
 def checkfile(infile):
     if os.path.exists(infile) == False:
@@ -21,6 +23,9 @@ temp_z_list = []
 
 # 2D list of points
 point_list = []
+
+# dict for speeding up checking if a point is already added to the list
+point_dict = dict()
 
 # tessalation list
 tess_list = []
@@ -51,6 +56,7 @@ if in_binary == "true":
 
     
 else:
+    print("Reading File")
     # opens the desired stl file
     stl_file = open(input_file, "r")
 
@@ -58,36 +64,47 @@ else:
     stlmod = stl_file.read()
     stlmod = stlmod.splitlines()
     stl_file.close()
-     
+    print("Processing File")
     # code for geting the virticies from the ascii
     for i in range(len(stlmod)):
-        stlmod[i] = stlmod[i].strip().split(" ")
-        if stlmod[i][0] == "vertex":
+        
+        if re.search("v", stlmod[i]):
+            stlmod[i] = stlmod[i].strip().split(" ")
             temp_x_list.append(float(str("{:f}".format(float(stlmod[i][1]))).rstrip("0")))
             temp_y_list.append(float(str("{:f}".format(float(stlmod[i][2]))).rstrip("0")))
             temp_z_list.append(float(str("{:f}".format(float(stlmod[i][3]))).rstrip("0")))
+        gc.collect()
 
 
             
 if out_binary == "true":
-
-    #print("Binary .cstl files are currently not supported")
+    print("Converting To Binary")
     for i in range(len(temp_x_list)):
         temp_z_list[i] = struct.pack( "f" , temp_z_list[i])
         temp_y_list[i] = struct.pack( "f" , temp_y_list[i])
         temp_x_list[i] = struct.pack( "f" , temp_x_list[i])
 
 
+
     
     # adds all unique points to the points list
+    index = 0
+    print("Removing Excess Points")
     for i in range(len(temp_x_list)):
-        if [temp_x_list[i], temp_y_list[i], temp_z_list[i]] not in point_list:
+        if str(temp_x_list[i]) + str(temp_y_list[i]) + str(temp_z_list[i]) not in point_dict:
             point_list.append([temp_x_list[i], temp_y_list[i], temp_z_list[i]])
+            point_dict[str(temp_x_list[i]) + str(temp_y_list[i]) + str(temp_z_list[i])] = index
+            index += 1
+
+
 
     # find the index of all the points and add them to the mesh list
+    print("Making Tessellation List")
     for i in range(len(temp_x_list)):
-        tess_list.append(struct.pack("i", point_list.index([temp_x_list[i], temp_y_list[i], temp_z_list[i]])))
+        tess_list.append(struct.pack("i", point_dict.get(str(temp_x_list[i]) + str(temp_y_list[i]) + str(temp_z_list[i]))))
 
+
+    print("Flattening List")
     # add all the points to the coordinate lists
     for i in range(3):
         for j in range(len(point_list)):
@@ -98,6 +115,7 @@ if out_binary == "true":
             if i == 2:
                 z_list.append(point_list[j][2])
 
+
     flag = False
     if os.path.exists(output_file):
         used_file = input("file name is not avalible. Do you want to delete the old file?(Y/N)").lower()
@@ -106,19 +124,26 @@ if out_binary == "true":
         else:
             flag = True
     if flag ==  False:
-        
+        print(len(x_list),len(y_list),len(z_list),len(tess_list))
         bcstl_file = open(output_file, "ab")
-    
+        print("Writing To File")
         for i in range(len(x_list)):
             bcstl_file.write(x_list[i])
-        bcstl_file.write(b'\xFF\xFF')
+
+        bcstl_file.write(b'\xFF\xFF\xFF\xFF')
+
         for i in range(len(y_list)):
             bcstl_file.write(y_list[i])
-        bcstl_file.write(b'\xFF\xFF')
+
+        bcstl_file.write(b'\xFF\xFF\xFF\xFF')
+
         for i in range(len(z_list)):
             bcstl_file.write(z_list[i])
-        bcstl_file.write(b'\xFF\xFF')
+
+        bcstl_file.write(b'\xFF\xFF\xFF\xFF')
+
         for i in range(len(tess_list)):
+
             bcstl_file.write(tess_list[i])
     
         bcstl_file.close()
@@ -128,15 +153,19 @@ if out_binary == "true":
 
     
 else:
+    print("Converting")
     # adds all unique points to the points list
+    index = 0
     for i in range(len(temp_x_list)):
-        if [temp_x_list[i], temp_y_list[i], temp_z_list[i]] not in point_list:
+        if str(temp_x_list[i]) + " " + str(temp_y_list[i]) + " " + str(temp_z_list[i]) not in point_dict:
             point_list.append([temp_x_list[i], temp_y_list[i], temp_z_list[i]])
+            point_dict[str(temp_x_list[i]) + " " + str(temp_y_list[i]) + " " + str(temp_z_list[i])] = index
+            index += 1
 
     # find the index of all the points and add them to the mesh list
     for i in range(len(temp_x_list)):
-        tess_list.append(point_list.index([temp_x_list[i], temp_y_list[i], temp_z_list[i]]))
-
+        tess_list.append(point_dict.get(str(temp_x_list[i]) + " " + str(temp_y_list[i]) + " " + str(temp_z_list[i])))
+    
     # add all the points to the coordinate lists
     for i in range(3):
         for j in range(len(point_list)):
@@ -157,6 +186,8 @@ else:
             flag = True
     if flag ==  False:
         cstl_file = open(output_file, "w")
-        print("Finished")
+        print("Writing To File")
         cstl_file.write("x_list  " + str(x_list) + "\ny_list  " + str(y_list) + "\nz_list  " + str(z_list) + "\ntess_list  " + str(tess_list))
+        print("Finished")
+        
         cstl_file.close()
