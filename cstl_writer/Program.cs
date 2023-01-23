@@ -8,6 +8,50 @@ using System.Threading.Tasks.Dataflow;
 // Gets the path of the program
 string path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Split("bin\\Debug\\net6.0")[0].Split("file:\\")[1];
 
+List<List<float>> verticies = new List<List<float>>();
+List<List<float>> normals = new List<List<float>>();
+int faucet_count = 0;
+
+List<float> ListRound (List<float> list, int places)
+{
+    if (list.Count == 0)
+    {
+        return list;
+    }
+    else if (places == 0)
+    {
+        return list;
+    }
+    for (int i = 0; i < list.Count; i++)
+    {
+        list[i] = MathF.Round(list[i], places);
+    }
+    return list;
+}
+
+
+List<List<List<float>>> ReadBinaryFile (string filename)
+{
+    using (BinaryReader read = new BinaryReader(File.Open(filename, FileMode.Open)))
+    {
+        read.ReadBytes(80);
+        faucet_count = read.ReadInt32();
+        for (int i = 0; i < faucet_count; i++)
+        {
+            List<float> normal = new List<float>{ read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
+            List<float> vertex1 = new List<float>{ read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
+            List<float> vertex2 = new List<float> { read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
+            List<float> vertex3 = new List<float> { read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
+            normals.Add(ListRound(normal, 6));
+            verticies.Add(ListRound(vertex1, 6));
+            verticies.Add(ListRound(vertex2, 6));
+            verticies.Add(ListRound(vertex3, 6));
+            read.ReadBytes(2);
+        }
+    }
+    return new List<List<List<float>>> {normals, verticies};
+}
+
 
 // Function for checking if the input file exists
 string CheckInputFile (string inFile)
@@ -101,10 +145,30 @@ float[] temp_z_array;
 
 
 // Start of processing code
+
+// Code that reads the stl file
 if (input_type == "b")
 {
-    Console.WriteLine("Sorry binary .stl files are currently unsupported");
-    return;
+    Console.WriteLine("Reading");
+    List<List<List<float>>> input_points = ReadBinaryFile(read_file);
+    List<List<float>> normal_vectors = input_points[0];
+    List<List<float>> points = input_points[1];
+    temp_x_array = new float[points.Count];
+    temp_y_array = new float[points.Count];
+    temp_z_array = new float[points.Count];
+    if (points.Count > 0)
+    {
+        for (int i = 0; i < points.Count; i++)
+        {
+            temp_x_array[i] = points[i][0];
+            temp_y_array[i] = points[i][1];
+            temp_z_array[i] = points[i][2];
+    }
+    }
+    else
+    {
+        return;
+    }
 }
 else if (input_type == "a")
 {
@@ -144,9 +208,11 @@ else if (input_type == "a")
 }
 else
 {
-    Console.WriteLine("Invalid Input Type");
+    Console.WriteLine("Invalid File Type");
     return;
 }
+
+
 
 // Start of conversion code
 Console.WriteLine("Converting");
@@ -180,6 +246,8 @@ for (int i = 0; i < temp_x_array.Length; i++)
     tesselation_array[i] = point_dictionary[point];
 
 }
+
+
 
 // Code to  write the files
 Console.WriteLine("Writing");
