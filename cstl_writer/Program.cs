@@ -147,6 +147,10 @@ float[] temp_x_array;
 float[] temp_y_array;
 float[] temp_z_array;
 
+float[] x_normal_array;
+float[] y_normal_array;
+float[] z_normal_array;
+
 // Lists for final points
 List<float> x_list = new List<float>();
 List<float> y_list = new List<float>();
@@ -173,6 +177,9 @@ void Read (string InputFile, string Type)
         temp_x_array = new float[points.Count];
         temp_y_array = new float[points.Count];
         temp_z_array = new float[points.Count];
+        y_normal_array = new float[normal_vectors.Count];
+        x_normal_array = new float[normal_vectors.Count];
+        z_normal_array = new float[normal_vectors.Count];
         if (points.Count > 0)
         {
             for (int i = 0; i < points.Count; i++)
@@ -180,7 +187,14 @@ void Read (string InputFile, string Type)
                 temp_x_array[i] = points[i][0];
                 temp_y_array[i] = points[i][1];
                 temp_z_array[i] = points[i][2];
-        }
+                
+            }
+            for (int i = 0; i < normal_vectors.Count; i++)
+            {
+                x_normal_array[i] = normal_vectors[i][0];
+                y_normal_array[i] = normal_vectors[i][1];
+                z_normal_array[i] = normal_vectors[i][2];
+            }
         }
         else
         {
@@ -263,21 +277,23 @@ for (int i = 0; i < temp_x_array.Length; i++)
 
 // Code to  write the files
 Console.WriteLine("Writing");
-decimal[] x = new decimal[x_list.Count];
-decimal[] y = new decimal[y_list.Count];
-decimal[] z = new decimal[z_list.Count];
-for (int i = 0; i < x.Length; i++)
-{
-    x[i] = Convert.ToDecimal(x_list[i]);
-    y[i] = Convert.ToDecimal(y_list[i]);
-    z[i] = Convert.ToDecimal(z_list[i]);
-}
+
+
 
 void Write (string outputFile, string type)
 {
     if (type == "a")
     {
 
+        decimal[] x = new decimal[x_list.Count];
+        decimal[] y = new decimal[y_list.Count];
+        decimal[] z = new decimal[z_list.Count];
+        for (int i = 0; i < x.Length; i++)
+        {
+            x[i] = Convert.ToDecimal(x_list[i]);
+            y[i] = Convert.ToDecimal(y_list[i]);
+            z[i] = Convert.ToDecimal(z_list[i]);
+        }
         using (StreamWriter file = new StreamWriter(File.Create(outputFile)))
         {
             // Writes the list to the file 
@@ -289,6 +305,10 @@ void Write (string outputFile, string type)
     }
     else if (type == "b")
     {
+        float[] x = x_list.ToArray();
+        float[] y = y_list.ToArray();
+        float[] z = z_list.ToArray();
+
         using (BinaryWriter file = new BinaryWriter(File.Create(outputFile)))
         {
             // Writes the bytes in the x list 
@@ -314,6 +334,7 @@ void Write (string outputFile, string type)
             {
                 file.Write(tesselation_array[i]);
             }
+
         };
     }
     else
