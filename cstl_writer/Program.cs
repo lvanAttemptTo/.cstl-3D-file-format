@@ -147,9 +147,9 @@ float[] temp_x_array;
 float[] temp_y_array;
 float[] temp_z_array;
 
-float[] x_normal_array;
-float[] y_normal_array;
-float[] z_normal_array;
+float[] x_normal_array = new float[0];
+float[] y_normal_array = new float[0];
+float[] z_normal_array = new float[0];
 
 // Lists for final points
 List<float> x_list = new List<float>();
@@ -333,6 +333,20 @@ void Write (string outputFile, string type)
             for (int i = 0; i < tesselation_array.Length; i++)
             {
                 file.Write(tesselation_array[i]);
+            }
+            for (int i = 0; i < x_normal_array.Length; i++)
+            {
+                file.Write(x_normal_array[i]);
+            }
+            file.Write(0xffffffff); // Seperator
+            for (int i = 0; i < y_normal_array.Length; i++)
+            {
+                file.Write(y_normal_array[i]);
+            }
+            file.Write(0xffffffff); // Seperator
+            for (int i = 0; i < z_normal_array.Length; i++)
+            {
+                file.Write(z_normal_array[i]);
             }
 
         };
