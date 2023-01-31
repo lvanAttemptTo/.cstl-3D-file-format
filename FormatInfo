@@ -17,3 +17,7 @@ tess_list  [0, 1, 2, ...]
 /x??/x??/x??/x?? // this is the list of float values for the z_list
 \xFF\xFF\xFF\xFF this tells the program that is reading it that the z_list is done
 /x??/x??/x??/x?? // this is a list of 4 byte ints for the tess_list.
+
+BETA
+
+    I am currently figuring out the best way to add and compress normal vectors to the file format. The full format deatails will be added soon but for now they are not shown here. The new temporary file format will be called .cstlb.
