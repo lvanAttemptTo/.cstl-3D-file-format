@@ -7,7 +7,17 @@ using System.Numerics;
 using System.Threading.Tasks.Dataflow;
 
 // Gets the path of the program
-string path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Split("bin\\Debug\\net6.0")[0].Split("file:\\")[1];
+char sep = System.IO.Path.DirectorySeparatorChar;
+string path = System.Reflection.Assembly.GetExecutingAssembly().CodeBase
+                                        .ToString()
+                                        .Split("//")[1]
+                                        .Split("bin")[0];
+// Quit if the path is null
+if (path == null)
+{
+    return;
+}
+Console.WriteLine(path);
 
 List<List<float>> verticies = new List<List<float>>();
 List<List<float>> normals = new List<List<float>>();
@@ -57,8 +67,8 @@ List<List<List<float>>> ReadBinaryFile (string filename)
 // Function for checking if the input file exists
 string CheckInputFile (string inFile)
 {
-    string outFile = path + "InputFiles\\" + inFile;
-
+    string outFile = path + "InputFiles"+ sep + inFile;
+    Console.WriteLine(outFile);
     // Checks if the .stl file exists in the "InputFiles" folder
     if (File.Exists(outFile))
     {
@@ -79,7 +89,7 @@ string CheckInputFile (string inFile)
 string CheckOutputFile (string inFile, bool conf)
 {
     string prompt = string.Empty;
-    string outFile = path + "OutputFiles\\" + inFile;
+    string outFile = path + "OutputFiles" + sep + inFile;
     
 
     // Checks if the file name is avalible and if the user has already confirmed that they want to delete the old file already
@@ -147,10 +157,6 @@ float[] temp_x_array;
 float[] temp_y_array;
 float[] temp_z_array;
 
-float[] x_normal_array = new float[0];
-float[] y_normal_array = new float[0];
-float[] z_normal_array = new float[0];
-
 // Lists for final points
 List<float> x_list = new List<float>();
 List<float> y_list = new List<float>();
@@ -174,12 +180,10 @@ void Read (string InputFile, string Type)
         List<List<float>> normal_vectors = input_points[0];
         List<List<float>> points = input_points[1];
         // Defining the temporary point lists
+        Console.WriteLine(points.Count);
         temp_x_array = new float[points.Count];
         temp_y_array = new float[points.Count];
         temp_z_array = new float[points.Count];
-        y_normal_array = new float[normal_vectors.Count];
-        x_normal_array = new float[normal_vectors.Count];
-        z_normal_array = new float[normal_vectors.Count];
         if (points.Count > 0)
         {
             for (int i = 0; i < points.Count; i++)
@@ -187,14 +191,7 @@ void Read (string InputFile, string Type)
                 temp_x_array[i] = points[i][0];
                 temp_y_array[i] = points[i][1];
                 temp_z_array[i] = points[i][2];
-                
-            }
-            for (int i = 0; i < normal_vectors.Count; i++)
-            {
-                x_normal_array[i] = normal_vectors[i][0];
-                y_normal_array[i] = normal_vectors[i][1];
-                z_normal_array[i] = normal_vectors[i][2];
-            }
+        }
         }
         else
         {
@@ -234,7 +231,7 @@ void Read (string InputFile, string Type)
             temp_y_array[i] = float.Parse(line[2]);
             temp_z_array[i] = float.Parse(line[3]);
         }
-
+        
 
     }
     else
@@ -279,12 +276,10 @@ for (int i = 0; i < temp_x_array.Length; i++)
 Console.WriteLine("Writing");
 
 
-
 void Write (string outputFile, string type)
 {
     if (type == "a")
     {
-
         decimal[] x = new decimal[x_list.Count];
         decimal[] y = new decimal[y_list.Count];
         decimal[] z = new decimal[z_list.Count];
@@ -308,7 +303,6 @@ void Write (string outputFile, string type)
         float[] x = x_list.ToArray();
         float[] y = y_list.ToArray();
         float[] z = z_list.ToArray();
-
         using (BinaryWriter file = new BinaryWriter(File.Create(outputFile)))
         {
             // Writes the bytes in the x list 
@@ -334,21 +328,6 @@ void Write (string outputFile, string type)
             {
                 file.Write(tesselation_array[i]);
             }
-            for (int i = 0; i < x_normal_array.Length; i++)
-            {
-                file.Write(x_normal_array[i]);
-            }
-            file.Write(0xffffffff); // Seperator
-            for (int i = 0; i < y_normal_array.Length; i++)
-            {
-                file.Write(y_normal_array[i]);
-            }
-            file.Write(0xffffffff); // Seperator
-            for (int i = 0; i < z_normal_array.Length; i++)
-            {
-                file.Write(z_normal_array[i]);
-            }
-
         };
     }
     else
@@ -360,5 +339,6 @@ void Write (string outputFile, string type)
 }
 Write(write_file, output_type);
 stopwatch.Stop();
-Console.WriteLine(stopwatch.Elapsed);
-Console.WriteLine("Finished");
+Console.WriteLine("Process Finished With a Time of " + stopwatch.Elapsed + ". Press Enter To Close.");
+Console.ReadLine();
+return;
