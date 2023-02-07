@@ -12,6 +12,10 @@ string path = System.Reflection.Assembly.GetExecutingAssembly().CodeBase
                                         .ToString()
                                         .Split("//")[1]
                                         .Split("bin")[0];
+if (path.Contains("/C:"))
+{
+    path = path.Split("/C:")[1];
+}
 // Quit if the path is null
 if (path == null)
 {
@@ -68,7 +72,7 @@ List<List<List<float>>> ReadBinaryFile (string filename)
 string CheckInputFile (string inFile)
 {
     string outFile = path + "InputFiles"+ sep + inFile;
-    Console.WriteLine(outFile);
+
     // Checks if the .stl file exists in the "InputFiles" folder
     if (File.Exists(outFile))
     {

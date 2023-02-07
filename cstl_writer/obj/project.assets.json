@@ -8,24 +8,26 @@
     "net6.0": []
   },
   "packageFolders": {
-    "/Users/lvandegrift5512/.nuget/packages/": {}
+    "C:\\Users\\lvandegrift5512\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/lvandegrift5512/Downloads/to_d3d/cstl_writer/cstl_writer.csproj",
+      "projectUniqueName": "C:\\Users\\lvandegrift5512\\OneDrive\\to_d3d\\cstl_writer\\cstl_writer.csproj",
       "projectName": "cstl_writer",
-      "projectPath": "/Users/lvandegrift5512/Downloads/to_d3d/cstl_writer/cstl_writer.csproj",
-      "packagesPath": "/Users/lvandegrift5512/.nuget/packages/",
-      "outputPath": "/Users/lvandegrift5512/Downloads/to_d3d/cstl_writer/obj/",
+      "projectPath": "C:\\Users\\lvandegrift5512\\OneDrive\\to_d3d\\cstl_writer\\cstl_writer.csproj",
+      "packagesPath": "C:\\Users\\lvandegrift5512\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\lvandegrift5512\\OneDrive\\to_d3d\\cstl_writer\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/lvandegrift5512/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\lvandegrift5512\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -49,7 +51,8 @@
           "net47",
           "net471",
           "net472",
-          "net48"
+          "net48",
+          "net481"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -58,7 +61,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.100/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
       }
     }
   }
