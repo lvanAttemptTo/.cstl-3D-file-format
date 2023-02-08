@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 using System.Threading.Tasks.Dataflow;
+using System.Threading;
 
 // Gets the path of the program
 char sep = System.IO.Path.DirectorySeparatorChar;
@@ -27,7 +28,8 @@ List<List<float>> verticies = new List<List<float>>();
 List<List<float>> normals = new List<List<float>>();
 int faucet_count = 0;
 
-List<float> ListRound (List<float> list, int places)
+// Rounds a list of floats to a desired accuracy
+List<float> ListRound(List<float> list, int places)
 {
     if (list.Count == 0)
     {
@@ -44,8 +46,8 @@ List<float> ListRound (List<float> list, int places)
     return list;
 }
 
-
-List<List<List<float>>> ReadBinaryFile (string filename)
+// Reads the binary file
+List<List<List<float>>> ReadBinaryFile(string filename)
 {
     using (BinaryReader read = new BinaryReader(File.Open(filename, FileMode.Open)))
     {
@@ -53,8 +55,8 @@ List<List<List<float>>> ReadBinaryFile (string filename)
         faucet_count = read.ReadInt32();
         for (int i = 0; i < faucet_count; i++)
         {
-            List<float> normal = new List<float>{ read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
-            List<float> vertex1 = new List<float>{ read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
+            List<float> normal = new List<float> { read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
+            List<float> vertex1 = new List<float> { read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
             List<float> vertex2 = new List<float> { read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
             List<float> vertex3 = new List<float> { read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
             normals.Add(ListRound(normal, 6));
@@ -64,14 +66,20 @@ List<List<List<float>>> ReadBinaryFile (string filename)
             read.ReadBytes(2);
         }
     }
-    return new List<List<List<float>>> {normals, verticies};
+    return new List<List<List<float>>> { normals, verticies };
 }
 
+string CheckInputFileType(string inFile)
+{
+    string checkFile = path + "InputFiles" + sep + inFile;
+    
+    return "";
+}
 
 // Function for checking if the input file exists
-string CheckInputFile (string inFile)
+string CheckInputFileExists(string inFile)
 {
-    string outFile = path + "InputFiles"+ sep + inFile;
+    string outFile = path + "InputFiles" + sep + inFile;
 
     // Checks if the .stl file exists in the "InputFiles" folder
     if (File.Exists(outFile))
@@ -83,18 +91,18 @@ string CheckInputFile (string inFile)
     {
         // If the file does not exist ask for the name of the file again
         Console.WriteLine("File does not exist. Please type the name of the file in again.");
-        outFile = Console.ReadLine ();
+        outFile = Console.ReadLine();
     }
     // Recursion to make sure the new file exists
-    return CheckInputFile(outFile);
+    return CheckInputFileExists(outFile);
 }
 
 // Function to check if the output file name is taken or not
-string CheckOutputFile (string inFile, bool conf)
+string CheckOutputFile(string inFile, bool conf)
 {
     string prompt = string.Empty;
     string outFile = path + "OutputFiles" + sep + inFile;
-    
+
 
     // Checks if the file name is avalible and if the user has already confirmed that they want to delete the old file already
     if (File.Exists(outFile) && conf == false)
@@ -103,34 +111,34 @@ string CheckOutputFile (string inFile, bool conf)
         // If it is taken ask if they want to delete the old one or not
         Console.WriteLine("The file allready exists. Would you like to overwrite it?(Y/N)");
         prompt = Console.ReadLine().ToLower();
-        if (prompt == "y") 
+        if (prompt == "y")
         {
             // If they say yes delete the old one and create a new one and set the confirmation variable to true
             conf = true;
             File.Delete(outFile);
-            
-            
+
+
             // Return the file
-            
+
             return outFile;
         }
         else
-        {   
+        {
             // If they say no to delete the old one it ask for a new file name
             Console.WriteLine("Type a new file name.");
 
             outFile = Console.ReadLine();
-            
+
         }
     }
     else
     {
-        
+
         // If the file name is avalible make a file with that file name
-        
-            
+
+
         return outFile;
-        
+
     }
     // Recursion to check if new file name is taken or not.
     Console.WriteLine(outFile);
@@ -139,7 +147,7 @@ string CheckOutputFile (string inFile, bool conf)
 
 // Get the name of the input file
 Console.WriteLine("Please type the name of the .stl file.");
-string read_file = CheckInputFile(Console.ReadLine());
+string read_file = CheckInputFileExists(Console.ReadLine());
 
 
 // Get the name of the output file
@@ -173,10 +181,10 @@ Dictionary<Vector3, int> point_dictionary = new Dictionary<Vector3, int>();
 
 Stopwatch stopwatch = Stopwatch.StartNew();
 // Code that reads the stl file
-void Read (string InputFile, string Type)
+void Read(string InputFile, string Type)
 {
     if (Type == "b")
-    {   
+    {
         // Reads the binary file
         Console.WriteLine("Reading");
         List<List<List<float>>> input_points = ReadBinaryFile(InputFile);
@@ -195,7 +203,7 @@ void Read (string InputFile, string Type)
                 temp_x_array[i] = points[i][0];
                 temp_y_array[i] = points[i][1];
                 temp_z_array[i] = points[i][2];
-        }
+            }
         }
         else
         {
@@ -235,7 +243,7 @@ void Read (string InputFile, string Type)
             temp_y_array[i] = float.Parse(line[2]);
             temp_z_array[i] = float.Parse(line[3]);
         }
-        
+
 
     }
     else
@@ -280,7 +288,7 @@ for (int i = 0; i < temp_x_array.Length; i++)
 Console.WriteLine("Writing");
 
 
-void Write (string outputFile, string type)
+void Write(string outputFile, string type)
 {
     if (type == "a")
     {
