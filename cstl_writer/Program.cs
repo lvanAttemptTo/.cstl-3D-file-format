@@ -1,5 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -28,23 +27,9 @@ List<List<float>> verticies = new List<List<float>>();
 List<List<float>> normals = new List<List<float>>();
 int faucet_count = 0;
 
-// Rounds a list of floats to a desired accuracy
-List<float> ListRound(List<float> list, int places)
-{
-    if (list.Count == 0)
-    {
-        return list;
-    }
-    else if (places == 0)
-    {
-        return list;
-    }
-    for (int i = 0; i < list.Count; i++)
-    {
-        list[i] = MathF.Round(list[i], places);
-    }
-    return list;
-}
+
+// Funtions
+
 
 // Reads the binary file
 List<List<List<float>>> ReadBinaryFile(string filename)
@@ -59,22 +44,42 @@ List<List<List<float>>> ReadBinaryFile(string filename)
             List<float> vertex1 = new List<float> { read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
             List<float> vertex2 = new List<float> { read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
             List<float> vertex3 = new List<float> { read.ReadSingle(), read.ReadSingle(), read.ReadSingle() };
-            normals.Add(ListRound(normal, 6));
-            verticies.Add(ListRound(vertex1, 6));
-            verticies.Add(ListRound(vertex2, 6));
-            verticies.Add(ListRound(vertex3, 6));
+            normals.Add(normal);
+            verticies.Add(vertex1);
+            verticies.Add(vertex2);
+            verticies.Add(vertex3);
             read.ReadBytes(2);
         }
     }
     return new List<List<List<float>>> { normals, verticies };
 }
 
+// Funtion that chscks file type
 string CheckInputFileType(string inFile)
 {
-    string checkFile = path + "InputFiles" + sep + inFile;
+    char[] character = new char[1];
+    string checkFile = inFile;
+    string type = "";
+    using(var reader = new StreamReader(checkFile))
+    {
+        
+        reader.ReadBlock(character, 0, 1);
+
+    }
+
+    char[] delim = new[] { 's' , ' '};
+    if (character[0] == delim[0])
+    {
+        type = "a";
+    }
+    else
+    {
+        type = "b";
+    }
     
-    return "";
+    return type;
 }
+
 
 // Function for checking if the input file exists
 string CheckInputFileExists(string inFile)
@@ -145,6 +150,10 @@ string CheckOutputFile(string inFile, bool conf)
     return CheckOutputFile(outFile, conf);
 }
 
+
+// Start of Code
+
+
 // Get the name of the input file
 Console.WriteLine("Please type the name of the .stl file.");
 string read_file = CheckInputFileExists(Console.ReadLine());
@@ -153,12 +162,9 @@ string read_file = CheckInputFileExists(Console.ReadLine());
 // Get the name of the output file
 Console.WriteLine("Please type the name of the .cstl file.");
 string write_file = CheckOutputFile(Console.ReadLine(), false);
-Console.WriteLine(write_file);
-
 
 // Is the input binary or ascii
-Console.WriteLine("Is the .stl file binary or ascii? (b/a)");
-string input_type = Console.ReadLine().ToLower();
+string input_type = CheckInputFileType(read_file);
 
 // do they want the output to be binary or ascii?
 Console.WriteLine("Do you want the file to output in binary or ascii? (b/a)");
@@ -178,7 +184,6 @@ List<float> z_list = new List<float>();
 Dictionary<Vector3, int> point_dictionary = new Dictionary<Vector3, int>();
 
 // Start of processing code
-
 Stopwatch stopwatch = Stopwatch.StartNew();
 // Code that reads the stl file
 void Read(string InputFile, string Type)
@@ -192,7 +197,6 @@ void Read(string InputFile, string Type)
         List<List<float>> normal_vectors = input_points[0];
         List<List<float>> points = input_points[1];
         // Defining the temporary point lists
-        Console.WriteLine(points.Count);
         temp_x_array = new float[points.Count];
         temp_y_array = new float[points.Count];
         temp_z_array = new float[points.Count];
@@ -284,13 +288,13 @@ for (int i = 0; i < temp_x_array.Length; i++)
 
 
 
-// Code to  write the files
+
 Console.WriteLine("Writing");
 
-
+// Function for writing the file
 void Write(string outputFile, string type)
 {
-    if (type == "a")
+    if (type == "a")  // ASCII file writer
     {
         decimal[] x = new decimal[x_list.Count];
         decimal[] y = new decimal[y_list.Count];
@@ -310,7 +314,7 @@ void Write(string outputFile, string type)
             file.Write("tess_list  [" + String.Join(", ", tesselation_array) + "]");
         };
     }
-    else if (type == "b")
+    else if (type == "b")  // Binary file writer
     {
         float[] x = x_list.ToArray();
         float[] y = y_list.ToArray();
